@@ -1,0 +1,7 @@
+*.pyc
+*.swp
+*.sublime-project
+*.sublime-workspace
+.coverage
+src/*
+build/*

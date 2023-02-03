@@ -1,0 +1,29 @@
+Screen {
+    layout: grid;
+    grid-size: 2;
+    grid-columns: 2fr 1fr;
+    grid-rows: 10% 90%;
+}
+
+.box {
+    height: 100%;
+    border: solid green;
+}
+
+#two {
+    row-span: 2; 
+}
+
+#repoView {
+    layout: grid;
+    grid-size: 2 1;
+    grid-columns: 1fr 2fr;
+}
+
+GraphRow {
+    layout: horizontal;
+}
+
+GraphRowGraph {
+   width: 15;
+}

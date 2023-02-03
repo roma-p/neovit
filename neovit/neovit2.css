@@ -1,0 +1,20 @@
+NeoVitMainContainer {
+    layout: horizontal;
+    height: 50;
+}
+
+LeftContainer {
+    layout: vertical;
+    background: blue;
+    margin: 1;
+    width: 140;
+    padding: 1;
+}
+
+CommandsContainer {
+    layout: horizontal;
+    background: red;
+    margin: 1;
+    width: 60;
+    padding: 1;
+}
