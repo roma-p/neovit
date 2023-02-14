@@ -27,3 +27,8 @@ GraphRow {
 GraphRowGraph {
    width: 15;
 }
+
+#stuff {
+    layout: horizontal;
+    height: 100%;
+}

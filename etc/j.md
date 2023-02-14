@@ -1,3 +1,12 @@
+# 10/02/23 -------------------------------------------------------------------
+
+ ROADMAP: nothing clear at all, so just push dirty codes who do stuff i guess.
+	- hierarchy of disto repo in left side.
+	- hierrachy of local repo above
+			- color code if local changes / not in repo / up to date etc...
+	- displaying vit commit tree for on package.
+
+
 # 30/12/22 -------------------------------------------------------------------
 
 rework of UI : 
