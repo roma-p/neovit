@@ -102,13 +102,13 @@ class RepoView(Tree):
         else:
             text_label = label
         first_line = text_label.split()[0]
-        # first_line.stylize("bold magenta")
         if color:
             first_line.stylize(color)
         return first_line
 
     def compose(self):
         repo_model = RepoModelWrapper.get_repo_model()
+        self.root.expand()
         self._update_local_editable(repo_model)
         self._update_local_structure(repo_model)
         self._update_origin_structure(repo_model)
@@ -116,10 +116,9 @@ class RepoView(Tree):
 
     def _update_local_editable(self, repo_model):
         editable = self.root.add("editable")
+        editable.expand()
         for asset_data in repo_model.editable_asset_list:
             editable.add_leaf(asset_data.file_name, data=asset_data)
-        # for path, data in repo_model.editable_asset_list.items():
-        #     editable.add_leaf(path)
 
     def _update_local_structure(self, repo_model):
         local_repo = self.root.add("local repo")

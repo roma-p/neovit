@@ -134,7 +134,6 @@ class VitRepoModel(object):
         return ret
 
     def gen_editable_asset_list(self):
-        # ret = {}
         ret = []
         for file_path, file_data in self.vit_track_data.items():
             if not file_data["editable"]:
@@ -150,10 +149,6 @@ class VitRepoModel(object):
                     changes=file_data["changes"]
                 )
             )
-            # ret[file_path] = os.path.join(
-            #     file_data["package_path"],
-            #     file_data["asset_name"]
-            # )
         return ret
 
     def gen_asset_commit_tree(self):
