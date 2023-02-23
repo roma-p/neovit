@@ -1,10 +1,11 @@
 import os
+from dataclasses import dataclass
 from vit_repo_model import VitRepoModel, AssetCheckoutStatus
 
 # textual imports
 from textual.containers import Container, Horizontal, Vertical
 from textual.app import ComposeResult, App
-from textual.widgets import Static, Header, Tree, Footer, _tree
+from textual.widgets import Static, Header, Tree, Footer, _tree, Button
 
 from rich.text import Text, TextType
 
@@ -34,6 +35,7 @@ def get_asset_color(asset_data):
 
 class RepoModelWrapper(object):
     _repo_model = None
+    current_asset = None
 
     @classmethod
     def init_repo_model(cls):
@@ -44,6 +46,11 @@ class RepoModelWrapper(object):
     @classmethod
     def get_repo_model(cls):
         return cls._repo_model
+
+    @classmethod
+    def get_tree_data(cls):
+        repo_model = cls.get_repo_model()
+        return repo_model.vit_asset_commit_tree.get(cls.current_asset, None)
 
 
 class NeoVit(App):
@@ -61,12 +68,20 @@ class NeoVit(App):
                 RepoModelWrapper.get_repo_model().repo_name,
                 id="left-pane",
             ),
-            Horizontal(
+            AssetView(
                 id="top-right"
             ),
             id="app-grid",
         )
         yield Footer()
+
+    def on_tree_node_selected(self, event):
+        event.stop()
+        data = event.node.data
+        if data is None:
+            return
+        asset_view = self.query_one("#top-right", AssetView)
+        asset_view.set_asset_tree_view(data.full_path)
 
 
 def add(
@@ -154,6 +169,86 @@ class RepoView(Tree):
         origin_repo.expand()
         for package_name, package_data in repo_structure_data.items():
             _add_package(origin_repo, package_name, package_data)
+
+
+@dataclass
+class AssetTreeDataCommit():
+    tree_data: str
+    commit_mess: str
+    user: str
+    date: float
+    commit_id: str
+
+
+class AssetTreeView(Vertical):
+    def compose(self):
+        tree_data = RepoModelWrapper.get_tree_data()
+        if not tree_data:
+            return ()
+        for commit_id, commit_data in tree_data["commits"].items():
+            asset_tree_data_commit = AssetTreeDataCommit(
+                tree_data="|\n|\n|\n|",
+                commit_mess=commit_data["message"],
+                user=commit_data["user"],
+                date=commit_data["date"],
+                commit_id=commit_id
+            )
+            yield AssetTreeItem(tree_data=asset_tree_data_commit)
+
+
+class GraphRowGraph(Static):
+    pass
+    # def render(self):
+    #     return " || "
+
+
+class GraphRowMessage(Vertical):
+
+    def __init__(self, *args, tree_data=None, **kargs):
+        super().__init__(*args, **kargs)
+        self.tree_data = tree_data
+
+    def compose(self):
+        yield Static(self.tree_data.commit_mess)
+        yield Static("{} : {}".format(self.tree_data.user, self.tree_data.date))
+        yield Static(self.tree_data.commit_id)
+
+
+class AssetTreeItem(Button):
+
+    def __init__(self, *args, tree_data=None, **kargs):
+        super().__init__(*args, **kargs)
+        self.tree_data = tree_data
+
+    def compose(self):
+        yield GraphRowGraph(self.tree_data.tree_data)
+        yield GraphRowMessage(tree_data=self.tree_data)
+
+
+class AssetTreeSubItem(Horizontal):
+    def compose(self):
+        yield GraphRowGraph()
+        yield GraphRowMessage()
+
+
+class AssetView(Vertical):
+
+    def compose(self):
+        return ()
+
+    def set_asset_tree_view(self, file_path):
+        if RepoModelWrapper.current_asset == file_path:
+            return
+        RepoModelWrapper.current_asset = file_path
+        try:
+            assetTreeView = self.query_one(AssetTreeView)
+        except Exception:  # NoMatches
+            pass
+        else:
+            assetTreeView.remove()
+        item = AssetTreeView(id="asset-tree-view")
+        self.mount(item)
+
 
 if __name__ == "__main__":
     app = NeoVit()
