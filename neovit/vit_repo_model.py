@@ -1,5 +1,6 @@
 import os
 import pprint
+from dataclasses import dataclass
 from vit.vit_lib import fetch, infos, asset, package
 
 
@@ -9,10 +10,21 @@ class AssetCheckoutStatus:
     editable = "editable"
 
 
+@dataclass
+class AssetFileInfo:
+    file_name: str
+    full_path: str
+
+    asset_status: AssetCheckoutStatus
+    changes: bool
+    # missing: branch / tag etc ...
+
+
 class VitRepoModel(object):
 
     def __init__(self, repo_local_path):
         self.repo_local_path = os.path.normpath(repo_local_path)
+        self.repo_name = os.path.basename(repo_local_path)
         # -- vit repo raw data (from vit_lib)
         self.vit_track_data = None
         self.local_file_structure = None
@@ -43,7 +55,6 @@ class VitRepoModel(object):
                     directories = {
                         ...
                     }
-                    untracked_files = (),
                     assets = (
                         (
                             <asset_file_name>,
@@ -96,20 +107,20 @@ class VitRepoModel(object):
                     else:
                         file_status = AssetCheckoutStatus.read_only
                     assets.append(
-                        (
-                            filename,
-                            file_full_path,
-                            file_status,
-                            file_track_data["changes"]
+                        AssetFileInfo(
+                            file_name=filename,
+                            full_path=file_full_path,
+                            asset_status=file_status,
+                            changes=file_track_data["changes"]
                         )
                     )
                 else:
                     assets.append(
-                        (
-                            filename,
-                            file_full_path,
-                            AssetCheckoutStatus.untracked,
-                            False
+                        AssetFileInfo(
+                            file_name=filename,
+                            full_path=file_full_path,
+                            asset_status=AssetCheckoutStatus.untracked,
+                            changes=False
                         )
                     )
 
@@ -123,14 +134,26 @@ class VitRepoModel(object):
         return ret
 
     def gen_editable_asset_list(self):
-        ret = {}
+        # ret = {}
+        ret = []
         for file_path, file_data in self.vit_track_data.items():
             if not file_data["editable"]:
                 continue
-            ret[file_path] = os.path.join(
-                file_data["package_path"],
-                file_data["asset_name"]
+            ret.append(
+                AssetFileInfo(
+                    file_name=file_path,
+                    full_path=os.path.join(
+                        file_data["package_path"],
+                        file_data["asset_name"]
+                    ),
+                    asset_status=AssetCheckoutStatus.editable,
+                    changes=file_data["changes"]
+                )
             )
+            # ret[file_path] = os.path.join(
+            #     file_data["package_path"],
+            #     file_data["asset_name"]
+            # )
         return ret
 
     def gen_asset_commit_tree(self):

@@ -1,3 +1,15 @@
+# 22/02/23 -------------------------------------------------------------------- 
+
+x create the basic hierarchy.
+x find way to colorize tree leafs.
+- pass standardize data to tree leafs (there is a way to pass non 
+    formatted data to leaf, create a dto to pass)
+- Then move on to tree view I guess ...
+
+
+-> fastest struct key index is new python is dataclass according tests on stackoverflow
+-> data_class_slots?? what is it?
+
 # 10/02/23 -------------------------------------------------------------------
 
  ROADMAP: nothing clear at all, so just push dirty codes who do stuff i guess.
