@@ -1,7 +1,7 @@
 import os
-import pprint
 from dataclasses import dataclass
 from vit.vit_lib import fetch, infos, asset, package
+from graph import Graph
 
 
 class AssetCheckoutStatus:
@@ -34,6 +34,7 @@ class VitRepoModel(object):
         self.vit_local_repo_tree = None
         self.vit_asset_commit_tree = None
         self.editable_asset_list = None
+        self.vit_asset_graph_data = None
 
     def build(self):
 
@@ -46,6 +47,9 @@ class VitRepoModel(object):
         self.vit_local_repo_tree = self.gen_local_repo_tree()
         self.editable_asset_list = self.gen_editable_asset_list()
         self.vit_asset_commit_tree = self.gen_asset_commit_tree()
+
+        # 3 -- creating data for graphs
+        self.vit_asset_graph_data = self.gen_graph_data()
 
     def gen_local_repo_tree(self):
         """
@@ -165,6 +169,13 @@ class VitRepoModel(object):
                 tree_data["asset"] = a
                 tree_data["package"] = p
                 ret[asset_full_path] = tree_data
+        return ret
+
+    def gen_graph_data(self):
+        ret = {}
+        for file_path, tree_data in self.vit_asset_commit_tree.items():
+            graph_generator = Graph(tree_data)
+            ret[file_path] = graph_generator.gen_graph()
         return ret
 
 
