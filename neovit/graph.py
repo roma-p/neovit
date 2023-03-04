@@ -40,7 +40,7 @@ class GraphDataHolder():
 
     def flush_buffer(self):
         if self._graph_data_item_buffer is not None:
-            self._graph_data_item_buffer = tuple(self._line_buffer)
+            self._graph_data_item_buffer.lines = tuple(self._line_buffer)
             self.graph_data_item_list.append(self._graph_data_item_buffer)
         self._line_buffer = []
         self._graph_data_item_buffer = None

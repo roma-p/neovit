@@ -183,5 +183,6 @@ if __name__ == "__main__":
     # print(VitRepoModel().get_local_repo_tree())
     vitRepoModel = VitRepoModel(os.getcwd())
     vitRepoModel.build()
+    print(vitRepoModel.vit_asset_graph_data['cyberGirl/sculpt'].graph_commit_item_list)
     # pprint.pprint(vitRepoModel.vit_asset_commit_tree)
     # pprint.pprint(vitRepoModel.editable_asset_list)

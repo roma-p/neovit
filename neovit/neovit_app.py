@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 from vit_repo_model import VitRepoModel, AssetCheckoutStatus
+from graph import GraphDataCommit, GraphDataTags, GraphDataBranch
 
 # textual imports
 from textual.containers import Container, Horizontal, Vertical
@@ -48,9 +49,10 @@ class RepoModelWrapper(object):
         return cls._repo_model
 
     @classmethod
-    def get_tree_data(cls):
+    def get_graph_data(cls):
         repo_model = cls.get_repo_model()
-        return repo_model.vit_asset_commit_tree.get(cls.current_asset, None)
+        tmp = repo_model.vit_asset_graph_data.get(cls.current_asset, None)
+        return tmp.graph_commit_item_list
 
 
 class NeoVit(App):
@@ -182,27 +184,18 @@ class AssetTreeDataCommit():
 
 class AssetTreeView(Vertical):
     def compose(self):
-        tree_data = RepoModelWrapper.get_tree_data()
+        tree_data = RepoModelWrapper.get_graph_data()
         if not tree_data:
             return ()
-        for commit_id, commit_data in tree_data["commits"].items():
-            asset_tree_data_commit = AssetTreeDataCommit(
-                tree_data="|\n|\n|\n|",
-                commit_mess=commit_data["message"],
-                user=commit_data["user"],
-                date=commit_data["date"],
-                commit_id=commit_id
-            )
-            yield AssetTreeItem(tree_data=asset_tree_data_commit)
+        for graph_item_data in tree_data:
+            yield AssetTreeItem(tree_data=graph_item_data)
 
 
 class GraphRowGraph(Static):
     pass
-    # def render(self):
-    #     return " || "
 
 
-class GraphRowMessage(Vertical):
+class GraphRowMessage_Commit(Vertical):
 
     def __init__(self, *args, tree_data=None, **kargs):
         super().__init__(*args, **kargs)
@@ -214,21 +207,68 @@ class GraphRowMessage(Vertical):
         yield Static(self.tree_data.commit_id)
 
 
-class AssetTreeItem(Button):
+class GraphRowMessage_Branch(Vertical):
 
     def __init__(self, *args, tree_data=None, **kargs):
         super().__init__(*args, **kargs)
         self.tree_data = tree_data
 
     def compose(self):
-        yield GraphRowGraph(self.tree_data.tree_data)
-        yield GraphRowMessage(tree_data=self.tree_data)
+        yield Static(self.tree_data.branch)
 
 
-class AssetTreeSubItem(Horizontal):
+class GraphRowMessage_Tag(Vertical):
+
+    def __init__(self, *args, tree_data=None, **kargs):
+        super().__init__(*args, **kargs)
+        self.tree_data = tree_data
+
     def compose(self):
-        yield GraphRowGraph()
-        yield GraphRowMessage()
+
+        yield Static(self.get_tag_line())
+        yield Static(self.tree_data.commit_mess)
+        yield Static("{} : {}".format(self.tree_data.user, self.tree_data.date))
+        yield Static(self.tree_data.commit_id)
+
+    def get_tag_line(self):
+        tag_line = "TAG: "
+        for tag in self.tree_data.tags:
+            tag_line += tag + ", "
+        tag_line = tag_line[:-2]
+        return tag_line
+
+class GraphRowMessage_Branch(Vertical):
+
+    def __init__(self, *args, tree_data=None, **kargs):
+        super().__init__(*args, **kargs)
+        self.tree_data = tree_data
+
+    def compose(self):
+        yield Static(self.tree_data.branch)
+
+
+class AssetTreeItem(Horizontal):
+
+    def __init__(self, *args, tree_data=None, **kargs):
+        super().__init__(*args, **kargs)
+        self.tree_data = tree_data
+
+    # A GRID
+    # BUTTON is TWO full F
+    # but not the other...
+
+    def compose(self):
+        graph_str = ""
+        for line in self.tree_data.lines:
+            graph_str += line + "\n"
+        # yield Button("", id="transparent_button")
+        yield GraphRowGraph(graph_str)
+        if isinstance(self.tree_data, GraphDataCommit):
+            yield GraphRowMessage_Commit(tree_data=self.tree_data)
+        elif isinstance(self.tree_data, GraphDataBranch):
+            yield GraphRowMessage_Branch(tree_data=self.tree_data)
+        else:
+            yield GraphDataTags(tree_data=self.tree_data)
 
 
 class AssetView(Vertical):
