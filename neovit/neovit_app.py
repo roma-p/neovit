@@ -12,6 +12,7 @@ from rich.text import Text, TextType
 
 
 class TreeColor:
+
     editable_change    = "red3"
     editable_no_change = "indian_red"
     readonly_change    = "green3"
