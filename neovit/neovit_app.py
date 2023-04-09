@@ -12,12 +12,11 @@ from rich.text import Text, TextType
 
 
 class TreeColor:
-
-    editable_change    = "red3"
+    editable_change = "red3"
     editable_no_change = "indian_red"
-    readonly_change    = "green3"
+    readonly_change = "green3"
     readonly_no_change = "see_green3"
-    untracked_file     = "grey46"
+    untracked_file = "grey46"
 
 
 def get_asset_color(asset_data):
@@ -87,7 +86,7 @@ class NeoVit(App):
         asset_view.set_asset_tree_view(data.full_path)
 
 
-def add(
+def _add(
         self,
         label: TextType,
         data=None,
@@ -107,9 +106,7 @@ def add(
     self._children.append(node)
     self._tree._invalidate()
     return node
-
-
-_tree.TreeNode.add = add
+_tree.TreeNode.add = _add
 
 
 class RepoView(Tree):

@@ -68,19 +68,19 @@ class Graph(object):
         self.tree_commits = tree_data["commits"]    # commit id to commit data for every commits
         self.tree_branches = tree_data["branches"]  # branch id to commit id for every branches.
 
-        self.branch_tip_date = {}       # branch id to date of last commit
-        self.branching_commits = {}     # commit id to number of branches branching from it.
-        self.tag_index = {}             # commit to list of tags referencing this commit.
+        self.branch_tip_date = {}        # branch id to date of last commit
+        self.branching_commits = {}      # commit id to number of branches branching from it.
+        self.tag_index = {}              # commit to list of tags referencing this commit.
 
         # iterators maintained during graph generation.
-        self.branch_draw_index = {}     # branch to row index where to draw branch on terminal.
-        self.branch_treated = set()     # branch that already have been added to branch_draw_index
-        self.branch_next_commit = {}    # branch to next commit to draw on terminal.
-        self.branch_next_date = {}      # branch to date of the next commit to draw on terminal.
-        self.branching_commits_rdy = {} # branching commits to set of branches rdy to draw branching.
+        self.branch_draw_index = {}      # branch to row index where to draw branch on terminal.
+        self.branch_treated = set()      # branch that already have been added to branch_draw_index
+        self.branch_next_commit = {}     # branch to next commit to draw on terminal.
+        self.branch_next_date = {}       # branch to date of the next commit to draw on terminal.
+        self.branching_commits_rdy = {}  # branching commits to set of branches rdy to draw branching.
 
-        self.next_branch = None         # branch id to draw on next cycle.
-        self.next_branch_date = None    # date of branch to draw on next cycle.
+        self.next_branch = None          # branch id to draw on next cycle.
+        self.next_branch_date = None     # date of branch to draw on next cycle.
 
         self.graph_holder_tags = GraphDataHolder()
         self.graph_holder_branch = GraphDataHolder()
