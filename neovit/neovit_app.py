@@ -200,9 +200,9 @@ class GraphRowMessage_Commit(Vertical):
         self.tree_data = tree_data
 
     def compose(self):
-        yield Static(self.tree_data.commit_mess)
-        yield Static("{} : {}".format(self.tree_data.user, self.tree_data.date))
-        yield Static(self.tree_data.commit_id)
+        yield Button(self.tree_data.commit_mess, id="custom_button")
+        yield Static("\t{} : {}".format(self.tree_data.user, self.tree_data.date))
+        yield Static("\t"+self.tree_data.commit_id)
 
 
 class GraphRowMessage_Branch(Vertical):
@@ -259,6 +259,7 @@ class AssetTreeItem(Horizontal):
         graph_str = ""
         for line in self.tree_data.lines:
             graph_str += line + "\n"
+        self.styles.height = len(self.tree_data.lines)
         # yield Button("", id="transparent_button")
         yield GraphRowGraph(graph_str)
         if isinstance(self.tree_data, GraphDataCommit):

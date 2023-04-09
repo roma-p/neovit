@@ -61,18 +61,14 @@ AssetTreeItem {
     layout: horizontal;
     border: none;
     width: 100%;
-    height: 5;
-    /* layers:  below above; */
 }
 
 GraphRowGraph {
    width: 5;
-   /* layer: below; */
 }
 
 GraphRowMessage {
    width: 100%;
-   /* layer: below; */
 }
 
 
@@ -80,4 +76,10 @@ GraphRowMessage {
    layer: above;
    height: 100%;
    width: auto;
+}
+
+#custom_button {
+    border: none;
+    height: 1;
+    content-align: left middle;
 }
