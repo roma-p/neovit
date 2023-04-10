@@ -1,7 +1,12 @@
 import os
+import time
 from dataclasses import dataclass
+
+# neovit imports
 from vit_repo_model import VitRepoModel, AssetCheckoutStatus
 from graph import GraphDataCommit, GraphDataTags, GraphDataBranch
+from constants import TreeColor
+import utils
 
 # textual imports
 from textual.containers import Container, Horizontal, Vertical
@@ -9,14 +14,6 @@ from textual.app import ComposeResult, App
 from textual.widgets import Static, Header, Tree, Footer, _tree, Button
 
 from rich.text import Text, TextType
-
-
-class TreeColor:
-    editable_change = "red3"
-    editable_no_change = "indian_red"
-    readonly_change = "green3"
-    readonly_no_change = "see_green3"
-    untracked_file = "grey46"
 
 
 def get_asset_color(asset_data):
@@ -201,7 +198,15 @@ class GraphRowMessage_Commit(Vertical):
 
     def compose(self):
         yield Button(self.tree_data.commit_mess, id="custom_button")
-        yield Static("\t{} : {}".format(self.tree_data.user, self.tree_data.date))
+        yield Static(
+            "\t{} : {}".format(
+                self.tree_data.user,
+                utils.epoch_to_x_ago_date(
+                    self.tree_data.date,
+                    time.time()
+                )
+            )
+        )
         yield Static("\t"+self.tree_data.commit_id)
 
 
@@ -250,10 +255,6 @@ class AssetTreeItem(Horizontal):
     def __init__(self, *args, tree_data=None, **kargs):
         super().__init__(*args, **kargs)
         self.tree_data = tree_data
-
-    # A GRID
-    # BUTTON is TWO full F
-    # but not the other...
 
     def compose(self):
         graph_str = ""
