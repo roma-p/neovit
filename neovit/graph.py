@@ -87,6 +87,8 @@ class Graph(object):
         self.graph_holder_branch = GraphDataHolder()
         self.graph_holder_commits = GraphDataHolder()
 
+        self.rich_color_by_branch = tuple()
+
     def gen_graph(self):
 
         # fetch data from repo and init iterators and buff.
@@ -99,6 +101,7 @@ class Graph(object):
         self._add_branch_to_draw_index(first_branch)
         self._draw_tip_of_branch(first_branch, 1, 0)
         self._update_next_branch()
+        self._add_new_branch_color()
 
         while True:
 
@@ -274,6 +277,7 @@ class Graph(object):
             len(self.branch_draw_index),
             self.branch_draw_index[branch]
         )
+        self._add_new_branch_color()
 
     def _update_draw_index_after_branching(self, *branches):
         branch_root = None
@@ -308,7 +312,7 @@ class Graph(object):
     # UPDATES LINES DRAWN FUNC -----------------------------------------------
 
     def _draw_tip_of_branch(self, branch_name, branch_number, branch_id):
-        lines = graph_func.draw_tip_of_branch(branch_number, branch_id)
+        lines = graph_func.draw_tip_of_branch(branch_number, branch_id, self.rich_color_by_branch)
         for graph_holder in (
                 self.graph_holder_tags,
                 self.graph_holder_branch,
@@ -320,12 +324,13 @@ class Graph(object):
             )
 
     def _draw_branching(self, branch_number, *branch_idx):
-        lines = graph_func.draw_branching(branch_number, *branch_idx)
+        lines, updated_colors = graph_func.draw_branching(branch_number, self.rich_color_by_branch, *branch_idx)
         for graph_holder in (
                 self.graph_holder_tags,
                 self.graph_holder_branch,
                 self.graph_holder_commits):
             graph_holder.add_buffer_lines(*lines)
+        self.rich_color_by_branch = updated_colors
 
     def _draw_commit_or_tag(self, commit, commit_draw_index, commit_data):
         if commit not in self.tag_index:
@@ -336,7 +341,8 @@ class Graph(object):
     def _draw_commit(self, commit, commit_draw_index, commit_data):
         lines = graph_func.draw_commit(
             len(self.branch_draw_index),
-            commit_draw_index
+            commit_draw_index,
+            self.rich_color_by_branch
         )
         graph_holder = self.graph_holder_commits
         graph_holder.flush_buffer()
@@ -355,6 +361,7 @@ class Graph(object):
         lines = graph_func.draw_tag(
             len(self.branch_draw_index),
             commit_draw_index,
+            self.rich_color_by_branch
         )
         for graph_holder in (self.graph_holder_commits, self.graph_holder_tags):
             graph_holder.flush_buffer()
@@ -369,3 +376,9 @@ class Graph(object):
                     *self.tag_index[commit]
                 )
             )
+
+    def _add_new_branch_color(self):
+        new_color = utils.cycle_branch_color()
+        _tmp = list(self.rich_color_by_branch)
+        _tmp.append(new_color)
+        self.rich_color_by_branch = tuple(_tmp)

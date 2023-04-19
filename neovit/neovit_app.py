@@ -5,7 +5,7 @@ from dataclasses import dataclass
 # neovit imports
 from vit_repo_model import VitRepoModel, AssetCheckoutStatus
 from graph import GraphDataCommit, GraphDataTags, GraphDataBranch
-from constants import TreeColor
+from constants import TREE_COLORS
 import utils
 
 # textual imports
@@ -18,17 +18,17 @@ from rich.text import Text, TextType
 
 def get_asset_color(asset_data):
     if asset_data.asset_status == AssetCheckoutStatus.untracked:
-        return TreeColor.untracked_file
+        return TREE_COLORS.untracked_file
     if asset_data.asset_status == AssetCheckoutStatus.editable:
         if asset_data.changes:
-            return TreeColor.editable_change
+            return TREE_COLORS.editable_change
         else:
-            return TreeColor.editable_no_change
+            return TREE_COLORS.editable_no_change
     else:
         if asset_data.changes:
-            return TreeColor.readonly_change
+            return TREE_COLORS.readonly_change
         else:
-            return TreeColor.readonly_no_change
+            return TREE_COLORS.readonly_no_change
 
 
 class RepoModelWrapper(object):
@@ -257,11 +257,10 @@ class AssetTreeItem(Horizontal):
         self.tree_data = tree_data
 
     def compose(self):
-        graph_str = ""
+        graph_str = Text()
         for line in self.tree_data.lines:
             graph_str += line + "\n"
         self.styles.height = len(self.tree_data.lines)
-        # yield Button("", id="transparent_button")
         yield GraphRowGraph(graph_str)
         if isinstance(self.tree_data, GraphDataCommit):
             yield GraphRowMessage_Commit(tree_data=self.tree_data)

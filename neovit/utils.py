@@ -1,3 +1,5 @@
+from itertools import cycle
+import constants
 
 
 def epoch_to_x_ago_date(past_epoch, current_epoch):
@@ -31,3 +33,9 @@ def epoch_to_x_ago_date(past_epoch, current_epoch):
         return _get_return_str(SECONDS_IN_MONTH, "month")
     else:
         return _get_return_str(SECONDS_IN_YEAR, "year")
+
+
+_color_cycle = cycle(constants.BRANCH_COLORS)
+def cycle_branch_color():
+    global _color_cycle
+    next(_color_cycle)

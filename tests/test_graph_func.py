@@ -63,9 +63,9 @@ class TestGraphFunc(unittest.TestCase):
         self.rprint_lines(ret)
 
     def test_draw_branching_new(self):
-        self.rprint_lines(graph_func.draw_branching(5, self.pick_colors(5), 1, 0, 3))
-        self.rprint_lines(graph_func.draw_branching(7, self.pick_colors(7), 0, 1, 4))
-        self.rprint_lines(graph_func.draw_branching(6, self.pick_colors(6), 3, 5, 4))
-        self.rprint_lines(graph_func.draw_branching(7, self.pick_colors(7), 0, 1, 2, 5))
-        self.rprint_lines(graph_func.draw_branching(4, self.pick_colors(4), 0, 1, 2, 3))
-        self.rprint_lines(graph_func.draw_branching(7, self.pick_colors(7), 1, 2, 4, 6))
+        self.rprint_lines(graph_func.draw_branching(5, self.pick_colors(5), 1, 0, 3)[0])
+        self.rprint_lines(graph_func.draw_branching(7, self.pick_colors(7), 0, 1, 4)[0])
+        self.rprint_lines(graph_func.draw_branching(6, self.pick_colors(6), 3, 5, 4)[0])
+        self.rprint_lines(graph_func.draw_branching(7, self.pick_colors(7), 0, 1, 2, 5)[0])
+        self.rprint_lines(graph_func.draw_branching(4, self.pick_colors(4), 0, 1, 2, 3)[0])
+        self.rprint_lines(graph_func.draw_branching(7, self.pick_colors(7), 1, 2, 4, 6)[0])

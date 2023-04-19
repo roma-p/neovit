@@ -1,65 +1,29 @@
-from rich.text import Text, TextType
+from rich.text import Text
+from collections import namedtuple
 
-# -- BASIC DRAW FUNCTIONS -----------------------------------------------------
+# -- PUBLIC ------------------------------------------------------------------
 
-
-def draw_tree_basic(branch_number, rich_color_by_branch):
-    return _enrich_graph_line(["| "]*branch_number, rich_color_by_branch)
-
-
-def draw_tree_uncommit_changes(branch_number, branch_id):
-    line = ""
-    for i in range(branch_number):
-        if i == branch_id:
-            line += ": "
-        else:
-            line += "| "
-    return line
-
-
-def draw_tree_star(branch_number, branch_id, rich_color_by_branch, char="*"):
-    line = "| "
-    line_n_left = branch_id
-    line_n_right = branch_number - branch_id - 1
-    item_list = [line] * line_n_left + [char + " "] + [line] * line_n_right
-    return _enrich_graph_line(item_list, rich_color_by_branch)
-
-
-def draw_tree_push_left(branch_number, branch_id, rich_color_by_branch):
-    line_n_left = branch_id
-    line_n_right = branch_number - branch_id - 1
-    item_list = ["| "] * line_n_left + ["|"] + ["/ "] + ["/ "] * line_n_right
-    return _enrich_graph_line(item_list, rich_color_by_branch)
-
-
-def draw_tree_split_left(branch_number, branch_id, rich_color_by_branch):
-    line_n_left = branch_id
-    line_n_right = branch_number - branch_id - 1
-    line = "| "
-    item_list = [line] * line_n_left + ["|"] + ["/"] + [line] * line_n_right
-    return _enrich_graph_line(item_list, rich_color_by_branch)
-
-# -- DRAW EVENTS --------------------------------------------------------------
+LineBuffer = namedtuple("LineBuffer", ["graph_line_buffer", "color_by_branch"])
 
 
 def draw_commit(branch_number, branch_id, rich_color_by_branch):
     lines = []
-    lines.append(draw_tree_star(branch_number, branch_id, rich_color_by_branch))
-    lines.append(draw_tree_basic(branch_number, rich_color_by_branch))
-    lines.append(draw_tree_basic(branch_number, rich_color_by_branch))
-    lines.append(draw_tree_basic(branch_number, rich_color_by_branch))
+    lines.append(_draw_tree_star(branch_number, branch_id, rich_color_by_branch))
+    lines.append(_draw_tree_basic(branch_number, rich_color_by_branch))
+    lines.append(_draw_tree_basic(branch_number, rich_color_by_branch))
+    lines.append(_draw_tree_basic(branch_number, rich_color_by_branch))
     return lines
 
 
 def draw_tag(branch_number, branch_id, rich_color_by_branch):
     lines = []
 
-    lines.append(draw_tree_star(branch_number, branch_id, rich_color_by_branch, "o"))
+    lines.append(_draw_tree_star(branch_number, branch_id, rich_color_by_branch, "o"))
 
-    lines.append(draw_tree_basic(branch_number, rich_color_by_branch))
-    lines.append(draw_tree_basic(branch_number, rich_color_by_branch))
-    lines.append(draw_tree_basic(branch_number, rich_color_by_branch))
-    lines.append(draw_tree_basic(branch_number, rich_color_by_branch))
+    lines.append(_draw_tree_basic(branch_number, rich_color_by_branch))
+    lines.append(_draw_tree_basic(branch_number, rich_color_by_branch))
+    lines.append(_draw_tree_basic(branch_number, rich_color_by_branch))
+    lines.append(_draw_tree_basic(branch_number, rich_color_by_branch))
     return lines
 
 
@@ -92,55 +56,78 @@ def draw_branching(
             split_to_draw = br_0 - br_root
 
         if br_0 + 1 < branch_number:
-            lines.append(draw_tree_push_left(
+            lines.append(_draw_tree_push_left(
                 branch_number - (i+1),
                 split_idx,
                 color_by_branch
             ))
-            color_by_branch = swap_tuple_at_index(color_by_branch, split_idx)
+            color_by_branch = _swap_tuple_at_index(color_by_branch, split_idx)
             split_idx = split_idx - 1
             split_to_draw = split_to_draw - 1
 
         for j in range(split_to_draw):
             lines.append(
-                draw_tree_split_left(
+                _draw_tree_split_left(
                     branch_number - (i+1),
                     split_idx,
                     color_by_branch
                 ))
-            color_by_branch = swap_tuple_at_index(color_by_branch, split_idx)
+            color_by_branch = _swap_tuple_at_index(color_by_branch, split_idx)
             split_idx = split_idx - 1
-        color_by_branch = pop_tuple_at_index(color_by_branch, split_idx + 1)
-    return lines
+        color_by_branch = _pop_tuple_at_index(color_by_branch, split_idx + 1)
+    return lines, color_by_branch
 
-
-def swap_tuple_at_index(iterable, idx):
-    # swap iterable[idx] et iterable[idx+1]
-    iterable = list(iterable)
-    _tmp = iterable[idx]
-    iterable[idx] = iterable[idx+1]
-    iterable[idx+1] = _tmp
-    return tuple(iterable)
-
-
-def pop_tuple_at_index(iterable, idx):
-    iterable = list(iterable)
-    iterable.pop(idx)
-    return tuple(iterable)
 
 def draw_tip_of_branch(branch_number, branch_id, rich_color_by_branch):
     return [
-        draw_tree_star(branch_number, branch_id, "O", rich_color_by_branch),
-        draw_tree_basic(branch_number, rich_color_by_branch)
+        _draw_tree_star(branch_number, branch_id, rich_color_by_branch, "O"),
+        _draw_tree_basic(branch_number, rich_color_by_branch)
     ]
+
+
+def draw_tree_uncommit_changes(branch_number, branch_id, rich_color_by_branch):
+    return _draw_tree_star(branch_number, branch_id, ":")
 
 
 def draw_uncommit_changes_on_branch(branch_number, branch_id, rich_color_by_branch):
     return [
-        draw_tree_star(branch_number, branch_id, "O", rich_color_by_branch),
+        _draw_tree_star(branch_number, branch_id, rich_color_by_branch, "O"),
         draw_tree_uncommit_changes(branch_number, branch_id, rich_color_by_branch),
         draw_tree_uncommit_changes(branch_number, branch_id, rich_color_by_branch)
     ]
+
+
+# -- PRIVATE ------------------------------------------------------------------
+
+# -- basic draw functions -----------------------------------------------------
+
+def _draw_tree_basic(branch_number, rich_color_by_branch):
+    return _enrich_graph_line(["| "]*branch_number, rich_color_by_branch)
+
+
+def _draw_tree_star(branch_number, branch_id, rich_color_by_branch, char="*"):
+    line = "| "
+    line_n_left = branch_id
+    line_n_right = branch_number - branch_id - 1
+    item_list = [line] * line_n_left + [char + " "] + [line] * line_n_right
+    return _enrich_graph_line(item_list, rich_color_by_branch)
+
+
+def _draw_tree_push_left(branch_number, branch_id, rich_color_by_branch):
+    line_n_left = branch_id
+    line_n_right = branch_number - branch_id - 1
+    item_list = ["| "] * line_n_left + ["|"] + ["/ "] + ["/ "] * line_n_right
+    return _enrich_graph_line(item_list, rich_color_by_branch)
+
+
+def _draw_tree_split_left(branch_number, branch_id, rich_color_by_branch):
+    line_n_left = branch_id
+    line_n_right = branch_number - branch_id - 1
+    line = "| "
+    item_list = [line] * line_n_left + ["|"] + ["/"] + [line] * line_n_right
+    return _enrich_graph_line(item_list, rich_color_by_branch)
+
+# -- utils --------------------------------------------------------------------
 
 
 def _enrich_graph_line(item_list, rich_color_list):
@@ -155,3 +142,18 @@ def _enrich_graph_line(item_list, rich_color_list):
         else:
             text.append(item_list[i])
     return text
+
+
+def _swap_tuple_at_index(iterable, idx):
+    # swap iterable[idx] et iterable[idx+1]
+    iterable = list(iterable)
+    _tmp = iterable[idx]
+    iterable[idx] = iterable[idx+1]
+    iterable[idx+1] = _tmp
+    return tuple(iterable)
+
+
+def _pop_tuple_at_index(iterable, idx):
+    iterable = list(iterable)
+    iterable.pop(idx)
+    return tuple(iterable)
