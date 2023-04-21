@@ -15,14 +15,15 @@ class TestGraphFunc(unittest.TestCase):
 
     @classmethod
     def rpint(cls, text):
+        text = graph_func.convert_line_buffers_to_rich_text([text])
         cls.console.print("")
         cls.console.print(text)
 
     @classmethod
     def rprint_lines(cls, lines):
+        lines = graph_func.convert_line_buffers_to_rich_text(lines)
         cls.console.print("")
-        for line in lines:
-            cls.console.print(line)
+        cls.console.print(lines)
 
     def pick_colors(self, number):
         COLORS = cycle((
@@ -38,27 +39,27 @@ class TestGraphFunc(unittest.TestCase):
             ret.append(next(COLORS))
         return tuple(ret)
 
-    def _test_tree_basic(self):
-        ret = graph_func.draw_tree_basic(4, self.pick_colors(4))
+    def test_tree_basic(self):
+        ret = graph_func._draw_tree_basic(4, self.pick_colors(4))
         self.rpint(ret)
 
-    def _test_draw_tree_star(self):
-        ret = graph_func.draw_tree_star(3, 1, self.pick_colors(3))
+    def test_draw_tree_star(self):
+        ret = graph_func._draw_tree_star(3, 1, self.pick_colors(3))
         self.rpint(ret)
 
-    def _test_tree_push_left(self):
-        ret = graph_func.draw_tree_push_left(4, 2, self.pick_colors(5))
+    def test_tree_push_left(self):
+        ret = graph_func._draw_tree_push_left(4, 2, self.pick_colors(5))
         self.rpint(ret)
 
-    def _test_tree_split_left(self):
-        ret = graph_func.draw_tree_split_left(4, 2, self.pick_colors(5))
+    def test_tree_split_left(self):
+        ret = graph_func._draw_tree_split_left(4, 2, self.pick_colors(5))
         self.rpint(ret)
 
-    def _test_draw_commit(self):
+    def test_draw_commit(self):
         ret = graph_func.draw_commit(3, 1, self.pick_colors(3))
         self.rprint_lines(ret)
 
-    def _test_draw_tag(self):
+    def test_draw_tag(self):
         ret = graph_func.draw_tag(3, 1, self.pick_colors(3))
         self.rprint_lines(ret)
 
