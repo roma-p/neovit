@@ -1,11 +1,16 @@
 from dataclasses import dataclass
 import utils
 import graph_func
+# from neovit import utils
+# from neovit import graph_func
+from rich import print as rprint
 
 
 @dataclass
 class GraphDataCommit():
-    lines: tuple[str]
+    lines: tuple[str]   # TODO: FALSE! RICH TEXT.
+    lines_nb: int
+    color: str
     commit_id: str
     commit_mess: str
     user: str
@@ -15,6 +20,8 @@ class GraphDataCommit():
 @dataclass
 class GraphDataTags():
     lines: tuple[str]
+    lines_nb: int
+    color: str
     tags: tuple[str]
     commit_id: str
     user: str
@@ -24,6 +31,8 @@ class GraphDataTags():
 @dataclass
 class GraphDataBranch():
     lines: tuple[str]
+    lines_nb: int
+    color: str
     branch: str
 
 
@@ -39,9 +48,14 @@ class GraphDataHolder():
     def set_buffer(self, graph_data_item):
         self._graph_data_item_buffer = graph_data_item
 
-    def flush_buffer(self):
+    def flush_buffer(self, color):
         if self._graph_data_item_buffer is not None:
-            self._graph_data_item_buffer.lines = tuple(self._line_buffer)
+            # FIXME: rename .lines ?
+            self._graph_data_item_buffer.color = color
+            self._graph_data_item_buffer.lines_nb = len(self._line_buffer)
+            self._graph_data_item_buffer.lines = graph_func.convert_line_buffers_to_rich_text(
+                self._line_buffer
+            )
             self.graph_data_item_list.append(self._graph_data_item_buffer)
         self._line_buffer = []
         self._graph_data_item_buffer = None
@@ -99,9 +113,9 @@ class Graph(object):
         self._update_next_branch()
         first_branch = self.next_branch
         self._add_branch_to_draw_index(first_branch)
+        self._add_new_branch_color()
         self._draw_tip_of_branch(first_branch, 1, 0)
         self._update_next_branch()
-        self._add_new_branch_color()
 
         while True:
 
@@ -181,7 +195,7 @@ class Graph(object):
                 self.graph_holder_tags,
                 self.graph_holder_branch,
                 self.graph_holder_commits):
-            graph_holder.flush_buffer()
+            graph_holder.flush_buffer("")
 
         return GraphData(
             graph_commit_item_list=self.graph_holder_commits.graph_data_item_list,
@@ -272,12 +286,12 @@ class Graph(object):
     def _handle_new_branch_and_draw(self, branch):
         self._add_branch_to_draw_index(branch)
         self._update_next_branch()
+        self._add_new_branch_color()
         self._draw_tip_of_branch(
             branch,
             len(self.branch_draw_index),
             self.branch_draw_index[branch]
         )
-        self._add_new_branch_color()
 
     def _update_draw_index_after_branching(self, *branches):
         branch_root = None
@@ -317,10 +331,15 @@ class Graph(object):
                 self.graph_holder_tags,
                 self.graph_holder_branch,
                 self.graph_holder_commits):
-            graph_holder.flush_buffer()
+            graph_holder.flush_buffer(self.rich_color_by_branch[branch_id])
             graph_holder.add_buffer_lines(*lines)
             graph_holder.set_buffer(
-                GraphDataBranch(lines=None, branch=branch_name)
+                GraphDataBranch(
+                    lines=None,
+                    lines_nb=0,
+                    color="",
+                    branch=branch_name
+                )
             )
 
     def _draw_branching(self, branch_number, *branch_idx):
@@ -345,11 +364,13 @@ class Graph(object):
             self.rich_color_by_branch
         )
         graph_holder = self.graph_holder_commits
-        graph_holder.flush_buffer()
+        graph_holder.flush_buffer(self.rich_color_by_branch[commit_draw_index])
         graph_holder.add_buffer_lines(*lines)
         graph_holder.set_buffer(
             GraphDataCommit(
                 lines=lines,
+                lines_nb=0,
+                color="",
                 commit_id=commit,
                 commit_mess=commit_data["message"],
                 user=commit_data["user"],
@@ -364,11 +385,13 @@ class Graph(object):
             self.rich_color_by_branch
         )
         for graph_holder in (self.graph_holder_commits, self.graph_holder_tags):
-            graph_holder.flush_buffer()
+            graph_holder.flush_buffer(self.rich_color_by_branch[commit_draw_index])
             graph_holder.add_buffer_lines(*lines)
             graph_holder.set_buffer(
                 GraphDataTags(
                     lines=lines,
+                    lines_nb=0,
+                    color="",
                     commit_id=commit,
                     commit_mess=commit_data["message"],
                     user=commit_data["user"],

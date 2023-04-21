@@ -1,4 +1,5 @@
 from itertools import cycle
+# from neovit import constants
 import constants
 
 
@@ -38,4 +39,4 @@ def epoch_to_x_ago_date(past_epoch, current_epoch):
 _color_cycle = cycle(constants.BRANCH_COLORS)
 def cycle_branch_color():
     global _color_cycle
-    next(_color_cycle)
+    return next(_color_cycle)

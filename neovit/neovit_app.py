@@ -197,7 +197,8 @@ class GraphRowMessage_Commit(Vertical):
         self.tree_data = tree_data
 
     def compose(self):
-        yield Button(self.tree_data.commit_mess, id="custom_button")
+        txt = Text(self.tree_data.commit_mess, style=self.tree_data.color)
+        yield Button(txt, id="custom_button",)
         yield Static(
             "\t{} : {}".format(
                 self.tree_data.user,
@@ -217,17 +218,18 @@ class GraphRowMessage_Branch(Vertical):
         self.tree_data = tree_data
 
     def compose(self):
-        yield Static(self.tree_data.branch)
+        txt = Text(self.tree_data.branch, style=self.tree_data.color)
+        yield Static(txt)
 
 
 class GraphRowMessage_Tag(Vertical):
 
-    def __init__(self, *args, tree_data=None, **kargs):
+    def __init__(self, *args, color=None, tree_data=None, **kargs):
         super().__init__(*args, **kargs)
         self.tree_data = tree_data
+        self.color = color
 
     def compose(self):
-
         yield Static(self.get_tag_line())
         yield Static(self.tree_data.commit_mess)
         yield Static("{} : {}".format(self.tree_data.user, self.tree_data.date))
@@ -257,11 +259,13 @@ class AssetTreeItem(Horizontal):
         self.tree_data = tree_data
 
     def compose(self):
-        graph_str = Text()
-        for line in self.tree_data.lines:
-            graph_str += line + "\n"
-        self.styles.height = len(self.tree_data.lines)
-        yield GraphRowGraph(graph_str)
+        # graph_str = Text()
+        # for line in self.tree_data.lines:
+        #     graph_str += line + "\n"
+        # TODO : line number?
+        # self.styles.height = len(self.tree_data.lines)
+        self.styles.height = self.tree_data.lines_nb
+        yield GraphRowGraph(self.tree_data.lines)
         if isinstance(self.tree_data, GraphDataCommit):
             yield GraphRowMessage_Commit(tree_data=self.tree_data)
         elif isinstance(self.tree_data, GraphDataBranch):

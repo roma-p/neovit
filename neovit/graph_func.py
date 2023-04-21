@@ -97,12 +97,29 @@ def draw_uncommit_changes_on_branch(branch_number, branch_id, rich_color_by_bran
     ]
 
 
+def convert_line_buffers_to_rich_text(line_buffer_list):
+    text = Text()
+    for line_buffer in line_buffer_list:
+        item_list, rich_color_list = line_buffer
+        for i in range(len(item_list)):
+            if i < len(rich_color_list):
+                color = rich_color_list[i]
+                if color is not None:
+                    text.append(item_list[i], style=color)
+                else:
+                    text.append(item_list[i])
+            else:
+                text.append(item_list[i])
+        text.append("\n")
+    return text
+
 # -- PRIVATE ------------------------------------------------------------------
 
 # -- basic draw functions -----------------------------------------------------
 
+
 def _draw_tree_basic(branch_number, rich_color_by_branch):
-    return _enrich_graph_line(["| "]*branch_number, rich_color_by_branch)
+    return LineBuffer(["| "]*branch_number, rich_color_by_branch)
 
 
 def _draw_tree_star(branch_number, branch_id, rich_color_by_branch, char="*"):
@@ -110,14 +127,14 @@ def _draw_tree_star(branch_number, branch_id, rich_color_by_branch, char="*"):
     line_n_left = branch_id
     line_n_right = branch_number - branch_id - 1
     item_list = [line] * line_n_left + [char + " "] + [line] * line_n_right
-    return _enrich_graph_line(item_list, rich_color_by_branch)
+    return LineBuffer(item_list, rich_color_by_branch)
 
 
 def _draw_tree_push_left(branch_number, branch_id, rich_color_by_branch):
     line_n_left = branch_id
     line_n_right = branch_number - branch_id - 1
     item_list = ["| "] * line_n_left + ["|"] + ["/ "] + ["/ "] * line_n_right
-    return _enrich_graph_line(item_list, rich_color_by_branch)
+    return LineBuffer(item_list, rich_color_by_branch)
 
 
 def _draw_tree_split_left(branch_number, branch_id, rich_color_by_branch):
@@ -125,7 +142,7 @@ def _draw_tree_split_left(branch_number, branch_id, rich_color_by_branch):
     line_n_right = branch_number - branch_id - 1
     line = "| "
     item_list = [line] * line_n_left + ["|"] + ["/"] + [line] * line_n_right
-    return _enrich_graph_line(item_list, rich_color_by_branch)
+    return LineBuffer(item_list, rich_color_by_branch)
 
 # -- utils --------------------------------------------------------------------
 
